@@ -1,26 +1,34 @@
+<!DOCTYPE html> 
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Charu's Kitchenette</title> <style> body {
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charu's Kitchenette</title>
+<style>
+/* CSS Styles - Makes the app look good */
+body {
+font-family: sans-serif;
 margin: 0;
 padding: 0;
-background-color: #f9f9f9;
-color: #333;
-padding-bottom: 80px;
+background-color: #f4f4f4;
+padding-bottom: 100px; /* Space for cart bar */
 }
 .header {
-background-color: #ff9800; /* Warm Orange */
+background-color: #ff8c00; /* Orange */
 color: white;
-padding: 20px;
 text-align: center;
+padding: 20px;
 position: sticky;
 top: 0;
-z-index: 100;
-box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+z-index: 1000;
+box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
-.header h1 { margin: 0; font-size: 22px; } .header p { margin: 5px 0 0; font-size: 14px; opacity: 0.9; } .notice-banner {
+.header h1 { margin: 0; font-size: 24px; }
+.header p { margin: 5px 0 0; font-size: 14px; }
+
+.notice {
 background-color: #fff3cd;
 color: #856404;
 padding: 10px;
@@ -29,69 +37,67 @@ font-size: 13px;
 border-bottom: 1px solid #ffeeba;
 }
 
-.category-title {
-padding: 15px 15px 5px;
-font-size: 18px;
-font-weight: bold;
+.section-title {
 color: #d35400;
-border-bottom: 2px solid #eee;
-margin-bottom: 10px;
+font-size: 20px;
+font-weight: bold;
+padding: 15px 15px 5px;
+margin-top: 10px;
+border-bottom: 2px solid #ddd;
 }
 
 .menu-item {
 background: white;
 margin: 10px 15px;
 padding: 15px;
-border-radius: 10px;
-box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+border-radius: 8px;
+box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 display: flex;
 justify-content: space-between;
 align-items: center;
 }
-.item-details h3 { margin: 0 0 5px; font-size: 16px; } .item-details p { margin: 0; color: #666; font-size: 14px; } .price { font-weight: bold; color: #27ae60; margin-top: 5px; display: block;}
+.item-info h3 { margin: 0 0 5px; font-size: 16px; color: #333; }
+.item-info .price { color: #27ae60; font-weight: bold; }
 
 .add-btn {
-background-color: #fff;
-color: #e67e22;
-border: 1px solid #e67e22;
+background-color: white;
+border: 1px solid #ff8c00;
+color: #ff8c00;
 padding: 8px 15px;
 border-radius: 20px;
 font-weight: bold;
 cursor: pointer;
-transition: 0.2s;
 }
-.add-btn.selected {
-background-color: #e67e22;
+.add-btn.active {
+background-color: #ff8c00;
 color: white;
 }
 
+/* Bottom Cart Bar */
 .cart-bar {
 position: fixed;
 bottom: 0;
 left: 0;
-right: 0;
-background-color: #2c3e50;
+width: 100%;
+background-color: #333;
 color: white;
-padding: 15px 20px;
-display: flex;
+padding: 15px;
+box-sizing: border-box; /* Ensures padding doesn't widen bar */
+display: none; /* Hidden initially */
 justify-content: space-between;
 align-items: center;
-box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-display: none; /* Hidden by default */
+box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
 }
-.cart-total { font-weight: bold; font-size: 16px; } .whatsapp-btn {
-background-color: #25D366;
+.cart-total { font-size: 18px; font-weight: bold; }
+.whatsapp-btn {
+background-color: #25D366; /* WhatsApp Green */
 color: white;
 border: none;
 padding: 10px 20px;
 border-radius: 25px;
 font-weight: bold;
-font-size: 14px;
 cursor: pointer;
-text-decoration: none;
-display: flex;
-align-items: center;
-gap: 8px;
+font-size: 16px;
 }
 </style>
 </head>
@@ -102,83 +108,143 @@ gap: 8px;
 <p>Homemade Comfort Food • KR Puram</p>
 </div>
 
-<div class="notice-banner">
-⚠️ Please Note: Orders taken 3 hours in advance for fresh preparation.
+<div class="notice">
+🕒 Please Note: Orders taken 3 hours in advance.
 </div>
 
-<div class="category-title">☀️ Breakfast</div> <div id="breakfast-list"></div>
+<div id="menu-container">
+</div>
 
-<div class="category-title">🍛 Main Course</div> <div id="main-course-list"></div>
-
-<div class="category-title">🥖 Breads & Sides</div> <div id="breads-list"></div>
-
-<div class="cart-bar" id="cartBar">
-<div class="cart-total">Total: ₹<span id="totalPrice">0</span></div> <button class="whatsapp-btn" onclick="sendOrder()"> <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-Order on WhatsApp
-</button>
+<div class="cart-bar" id="cart-bar">
+<div class="cart-total" id="cart-total">Total: ₹0</div>
+<button class="whatsapp-btn" onclick="sendOrder()">Order on WhatsApp 🚀</button>
 </div>
 
 <script>
-// --- MENU DATA (Based on your final menu) --- const menu = {
-breakfast: [
+// --- 1. DATA: Your Menu Items ---
+const menuData = [
+{
+category: "☀️ Breakfast",
+items: [
 { name: "Poha", price: 30 },
-{ name: "Namkeen Javein (Vermicelli)", price: 40 }, { name: "Idli (4 Pcs) + Chutney", price: 50 }, { name: "Veg Sandwich (Plain)", price: 60 }, { name: "Aloo Masala Sandwich", price: 65 }, { name: "Moong Dal Cheela", price: 65 }, { name: "Cheese Veg Grilled Sandwich", price: 75 } ],
-mainCourse: [
+{ name: "Namkeen Javein (Vermicelli)", price: 40 },
+{ name: "Idli (4 Pcs) + Chutney", price: 50 },
+{ name: "Veg Sandwich (Plain)", price: 60 },
+{ name: "Aloo Masala Sandwich", price: 65 },
+{ name: "Moong Dal Cheela", price: 65 },
+{ name: "Cheese Veg Grilled Sandwich", price: 75 }
+]
+},
+{
+category: "🍛 Main Course",
+items: [
 { name: "Shahi Paneer", price: 160 },
-{ name: "Paneer Butter Masala", price: 170 }, { name: "Afghani Paneer", price: 170 }, { name: "Paneer Bhurji", price: 100 }, { name: "Rajma + Rice", price: 100 }, { name: "Kadhi + Rice", price: 100 }, { name: "Dal Tadka", price: 80 }, { name: "Aloo Gobhi (Dry)", price: 95 }, { name: "Seasonal Veg", price: 75 } ],
-breads: [
+{ name: "Paneer Butter Masala", price: 170 },
+{ name: "Afghani Paneer", price: 170 },
+{ name: "Paneer Bhurji", price: 100 },
+{ name: "Rajma + Rice", price: 100 },
+{ name: "Kadhi + Rice", price: 100 },
+{ name: "Dal Tadka", price: 80 },
+{ name: "Aloo Gobhi (Dry)", price: 95 },
+{ name: "Seasonal Veg", price: 75 }
+]
+},
+{
+category: "🥖 Breads & Sides",
+items: [
 { name: "Tawa Roti", price: 10 },
 { name: "Naan (Plain)", price: 15 },
 { name: "Butter Naan", price: 20 },
 { name: "Garlic Naan", price: 25 },
 { name: "Plain Paratha", price: 20 },
-{ name: "Aloo Paratha + Pickle", price: 20 }, { name: "Curd (Dahi)", price: 10 } ] };
+{ name: "Aloo Paratha + Pickle", price: 20 },
+{ name: "Curd (Dahi)", price: 10 }
+]
+}
+];
 
-const cart = {};
+// --- 2. RENDER: Put items on the screen ---
+const container = document.getElementById("menu-container");
+let cart = {}; // Object to store items: { "Poha": 30, "Tea": 10 }
 
-// Function to render items
-function renderCategory(items, elementId) { const container = document.getElementById(elementId);
-items.forEach(item => {
-const div = document.createElement('div'); div.className = 'menu-item'; div.innerHTML = ` <div class="item-details"> <h3>${item.name}</h3> <span class="price">₹${item.price}</span>
+menuData.forEach(section => {
+// Create Category Title
+const title = document.createElement("div");
+title.className = "section-title"
+title.innerText = section.category;
+container.appendChild(title);
+
+// Create Items
+section.items.forEach(item => {
+const itemDiv = document.createElement("div");
+itemDiv.className = "menu-item"
+itemDiv.innerHTML = `
+<div class="item-info">
+<h3>${item.name}</h3>
+<div class="price">₹${item.price}</div>
 </div>
-<button class="add-btn" id="btn-${item.name.replace(/\s/g, '')}" onclick="toggleItem('${item.name}', ${item.price}, this)">ADD</button> `; container.appendChild(div); }); }
+<button class="add-btn" id="btn-${item.name}" onclick="toggleCart('${item.name}', ${item.price})">ADD</button>
+`;
+container.appendChild(itemDiv);
+});
+});
 
-// Initialize Menu
-renderCategory(menu.breakfast, 'breakfast-list'); renderCategory(menu.mainCourse, 'main-course-list'); renderCategory(menu.breads, 'breads-list');
+// --- 3. LOGIC: Add/Remove Items ---
+function toggleCart(name, price) {
+const btn = document.getElementById(`btn-${name}`);
 
-// Logic to Add/Remove items
-function toggleItem(name, price, btnElement) { if (cart[name]) { delete cart[name]; btnElement.classList.remove('selected');
-btnElement.innerText = "ADD"
+if (cart[name]) {
+// If item is already in cart, remove it
+delete cart[name];
+btn.innerText = "ADD"
+btn.classList.remove("active");
 } else {
+// Add item to cart
 cart[name] = price;
-btnElement.classList.add('selected');
-btnElement.innerText = "ADDED ✔"
+btn.innerText = "ADDED ✔"
+btn.classList.add("active");
 }
-updateCart();
+updateCartBar();
 }
 
-// Update Cart Total
-function updateCart() {
+// --- 4. UPDATE: Show Total Price ---
+function updateCartBar() {
 let total = 0;
-for (let item in cart) {
-total += cart[item];
+let itemCount = 0;
+for (let key in cart) {
+total += cart[key];
+itemCount++;
 }
-document.getElementById('totalPrice').innerText = total; const cartBar = document.getElementById('cartBar');
-if (total > 0) {
-cartBar.style.display = 'flex';
+
+const bar = document.getElementById("cart-bar");
+const totalText = document.getElementById("cart-total");
+
+if (itemCount > 0) {
+bar.style.display = "flex" // Show bar
+totalText.innerText = "Total: ₹" + total;
 } else {
-cartBar.style.display = 'none';
+bar.style.display = "none" // Hide bar
 }
 }
 
-// Send to WhatsApp
+// --- 5. SEND: Open WhatsApp ---
 function sendOrder() {
 let message = "Hello Charu's Kitchenette! I would like to order:\n\n"
 let total = 0;
-for (let item in cart) {
-message += `▪️ ${item} - ₹${cart[item]}\n`; total += cart[item]; } message += `\n💰 *Total: ₹${total}*`; message += `\n\n📍 Delivery Location: [Please type your address]`; // Your Phone Number const phoneNumber = "916364795965"
-const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-window.open(url, '_blank');
+for (let key in cart) {
+message += `▪️ ${key} - ₹${cart[key]}\n`;
+total += cart[key];
+}
+message += `\n💰 *Total Amount: ₹${total}*`;
+message += `\n\n📍 *My Address:* (Please type here)`;
+
+// ENCODE the message so it works in URL
+const encodedMsg = encodeURIComponent(message);
+// Your Number
+const number = "916364795965"
+
+// Open WhatsApp
+window.open(`https://wa.me/${number}?text=${encodedMsg}`, "_blank");
 }
 </script>
 
